@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports: ["5000:5000"]
+    environment:
+      - NASA_API_KEY=${NASA_API_KEY}
+  frontend:
+    build: ./frontend
+    ports: ["3000:3000"]
+    depends_on:
+      - backend
