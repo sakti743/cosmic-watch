@@ -1,7 +1,8 @@
-"use client"; // Required for App Router hooks
+"use client"; 
 import React, { useState } from 'react';
 import { Telescope } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // Standard Next.js navigation
 import axios from 'axios';
 
 const LoginPage = () => {
@@ -13,16 +14,12 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Connect to your backend running on 5001
       const response = await axios.post('http://localhost:5001/api/auth/login', {
         username,
         password
       });
 
-      // Save the JWT token for secure NASA data access
       localStorage.setItem('token', response.data.token);
-      
-      // Redirect to the Dashboard after success
       router.push('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Access Denied: Invalid Credentials');
@@ -33,7 +30,6 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-[#05060b] text-gray-300 font-sans px-4">
       <div className="w-full max-w-md p-8 bg-[#0a0b14] rounded-2xl border border-gray-800 shadow-2xl relative overflow-hidden">
         
-        {/* Visual Flair: Glow background */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-3xl rounded-full -mr-16 -mt-16"></div>
 
         <div className="flex flex-col items-center mb-8 relative">
@@ -78,9 +74,19 @@ const LoginPage = () => {
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-900 text-center">
-          <p className="text-[9px] text-gray-600 font-mono uppercase">Secure AES-256 Encrypted Connection</p>
+        {/* --- ADDED SECTION START --- */}
+        <div className="mt-8 pt-6 border-t border-gray-900 text-center space-y-3">
+          <p className="text-xs text-gray-400">
+            Don't have an account? 
+            <Link href="/register" className="text-blue-400 hover:text-purple-400 ml-1 font-bold transition-colors">
+               Register
+            </Link>
+          </p>
+          <p className="text-[9px] text-gray-600 font-mono uppercase tracking-widest">
+            Secure AES-256 Encrypted Connection
+          </p>
         </div>
+        {/* --- ADDED SECTION END --- */}
       </div>
     </div>
   );
