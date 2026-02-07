@@ -5,12 +5,12 @@ import {
   Activity, Radio, AlertCircle, Shield, Search, LogOut, 
   BarChart3, Target, Crosshair, AlertTriangle, Zap, Filter, Star,
   ArrowLeftRight, Info, HardHat, Globe, Rocket, Bomb, Flame, Mountain,
-  FileText // Added for PDF export
+  FileText 
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import jsPDF from 'jspdf'; // Added
-import 'jspdf-autotable'; // Added
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'; // Direct import to fix the "not a function" error
 
 // --- EMERGENCY ALERT BANNER ---
 const AlertBanner = ({ highRiskCount }) => {
@@ -103,7 +103,7 @@ const RiskAnalysisChart = ({ data }) => {
   );
 };
 
-// --- COMPARISON TOOL + DEFLECTION + IMPACT PREDICTOR + PDF REPORT ---
+// --- COMPARISON TOOL + PHYSICS + PDF ---
 const AsteroidComparison = ({ selected }) => {
   if (selected.length === 0) return (
     <div className="bg-[#0a0b14] border border-dashed border-gray-800 rounded-xl p-8 text-center">
@@ -126,50 +126,53 @@ const AsteroidComparison = ({ selected }) => {
     return { megatons, craterDiameter, fireballRadius, forceNeeded };
   };
 
-  // --- PDF REPORT GENERATOR ---
   const generateTacticalReport = () => {
-    const doc = new jsPDF();
-    const now = new Date().toLocaleString();
+    try {
+      const doc = new jsPDF();
+      const now = new Date().toLocaleString();
 
-    // PDF Header Styling
-    doc.setFillColor(10, 11, 20);
-    doc.rect(0, 0, 210, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.text("COSMICWATCH: TACTICAL BRIEFING", 15, 25);
-    doc.setFontSize(8);
-    doc.text(`GENERATED: ${now} | AUTH: SATELLITE_UPLINK_01`, 15, 32);
+      doc.setFillColor(10, 11, 20);
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.text("COSMICWATCH: TACTICAL BRIEFING", 15, 25);
+      doc.setFontSize(8);
+      doc.text(`GENERATED: ${now} | AUTH: SATELLITE_UPLINK_01`, 15, 32);
 
-    const tableData = selected.map(neo => {
-      const p = getPhysicsData(neo.velocity, neo.size);
-      return [
-        neo.name,
-        neo.id,
-        neo.velocity,
-        neo.size,
-        `${neo.riskScore}%`,
-        `${p.megatons.toFixed(1)} MT`,
-        `${p.craterDiameter.toFixed(2)} KM`,
-        `${(p.forceNeeded / 1e6).toFixed(1)} MN`
-      ];
-    });
+      const tableData = selected.map(neo => {
+        const p = getPhysicsData(neo.velocity, neo.size);
+        return [
+          neo.name,
+          neo.id,
+          neo.velocity,
+          neo.size,
+          `${neo.riskScore}%`,
+          `${p.megatons.toFixed(1)} MT`,
+          `${p.craterDiameter.toFixed(2)} KM`,
+          `${(p.forceNeeded / 1e6).toFixed(1)} MN`
+        ];
+      });
 
-    doc.autoTable({
-      startY: 50,
-      head: [['NAME', 'ID', 'VELOCITY', 'DIAMETER', 'RISK', 'YIELD', 'CRATER', 'DEFLECT']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [59, 130, 246], textColor: 255, fontSize: 7 },
-      bodyStyles: { fontSize: 7, font: 'courier' },
-      alternateRowStyles: { fillColor: [245, 247, 250] }
-    });
+      // Fixed: Using autoTable function directly
+      autoTable(doc, {
+        startY: 50,
+        head: [['NAME', 'ID', 'VELOCITY', 'DIAMETER', 'RISK', 'YIELD', 'CRATER', 'DEFLECT']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [59, 130, 246], textColor: 255, fontSize: 7 },
+        bodyStyles: { fontSize: 7, font: 'courier' },
+        alternateRowStyles: { fillColor: [245, 247, 250] }
+      });
 
-    // Classification Watermark
-    doc.setTextColor(200, 200, 200);
-    doc.setFontSize(40);
-    doc.text("CLASSIFIED", 45, 160, { angle: 45, opacity: 0.1 });
+      doc.setTextColor(200, 200, 200);
+      doc.setFontSize(40);
+      doc.text("CLASSIFIED", 45, 180, { angle: 45, opacity: 0.1 });
 
-    doc.save(`TACTICAL_REPORT_${selected[0].name.replace(/\s+/g, '_')}.pdf`);
+      doc.save(`TACTICAL_REPORT_${selected[0].name.replace(/\s+/g, '_')}.pdf`);
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+      alert("Failed to generate PDF. Check terminal for errors.");
+    }
   };
 
   return (
@@ -225,16 +228,6 @@ const AsteroidComparison = ({ selected }) => {
               </td>
             ))}
           </tr>
-          <tr className="bg-orange-500/5">
-            <td className="py-4 text-orange-400 font-bold flex items-center gap-2">
-              <Flame size={12} /> Fireball Radius
-            </td>
-            {selected.map(neo => (
-              <td key={neo.id} className="py-4 text-center text-orange-500 font-bold">
-                {getPhysicsData(neo.velocity, neo.size).fireballRadius.toLocaleString(undefined, { maximumFractionDigits: 2 })} KM
-              </td>
-            ))}
-          </tr>
           <tr className="bg-blue-500/5">
             <td className="py-4 text-blue-400 font-bold flex items-center gap-2">
               <Rocket size={12} /> Deflection Req.
@@ -244,49 +237,21 @@ const AsteroidComparison = ({ selected }) => {
                 <div className="text-blue-400 font-bold">
                     {(getPhysicsData(neo.velocity, neo.size).forceNeeded / 1e6).toLocaleString(undefined, { maximumFractionDigits: 1 })} MN
                 </div>
-                <div className="text-[7px] text-gray-600 uppercase">MegaNewtons Impulse</div>
               </td>
             ))}
           </tr>
         </tbody>
       </table>
 
-      {/* VISUAL FOOTPRINT FOOTER */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {selected.map(neo => {
-          const { craterDiameter } = getPhysicsData(neo.velocity, neo.size);
-          const severity = craterDiameter > 10 ? 'Global Threat' : craterDiameter > 1 ? 'Regional Threat' : 'Local Threat';
-          return (
-            <div key={neo.id} className="bg-black/40 border border-gray-800 p-4 rounded-lg flex flex-col items-center">
-              <div className="w-full flex justify-between items-center mb-4">
-                <span className="text-[8px] text-gray-600 font-mono uppercase">{neo.name}</span>
-                <Bomb size={12} className={craterDiameter > 5 ? 'text-red-600' : 'text-orange-500'} />
-              </div>
-              <div className="h-20 flex items-center justify-center relative w-full">
-                <div 
-                  className="rounded-full border border-dashed border-red-500/50 bg-red-500/10 animate-pulse"
-                  style={{ 
-                    width: `${Math.min(craterDiameter * 8, 70)}px`, 
-                    height: `${Math.min(craterDiameter * 8, 70)}px` 
-                  }}
-                />
-              </div>
-              <p className={`text-[9px] font-black uppercase mt-2 ${craterDiameter > 5 ? 'text-red-500' : 'text-orange-500'}`}>
-                {severity}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-
       <div className="mt-4 flex items-center gap-2 text-[8px] text-gray-600 font-mono uppercase bg-black/40 p-2 rounded border border-gray-900">
         <Info size={12} className="text-blue-500" />
-        Simulations based on kinetic yield $E_k = \frac{1}{2}mv^2$ and Holsapple crater scaling laws. 10-year deflection window assumed.
+        Simulations based on kinetic yield $E_k = \frac{1}{2}mv^2$ and Holsapple crater scaling laws.
       </div>
     </div>
   );
 };
 
+// --- MAIN DASHBOARD COMPONENT ---
 export default function Dashboard() {
   const router = useRouter();
   const [asteroids, setAsteroids] = useState([]);
@@ -345,11 +310,9 @@ export default function Dashboard() {
     const matchesSearch = neo.name.toLowerCase().includes(searchTerm.toLowerCase());
     const isCritical = neo.riskScore >= 75;
     const isWatched = favorites.includes(neo.id);
-    
     let pass = matchesSearch;
     if (showOnlyThreats) pass = pass && isCritical;
     if (showOnlyWatchlist) pass = pass && isWatched;
-    
     return pass;
   });
 
@@ -371,7 +334,7 @@ export default function Dashboard() {
           <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] font-mono mt-1">Real-Time Deep Space Surveillance</p>
         </div>
         <div className="flex gap-4 items-center">
-          <div className="hidden sm:flex bg-[#0a0b14] border border-gray-800 px-4 py-2 rounded-md items-center gap-2 shadow-inner">
+          <div className="hidden sm:flex bg-[#0a0b14] border border-gray-800 px-4 py-2 rounded-md items-center gap-2">
             <Radio size={14} className="text-green-500 animate-ping" />
             <span className="text-[10px] font-mono text-gray-400 tracking-wider">NASA_LINK: STABLE</span>
           </div>
@@ -383,7 +346,6 @@ export default function Dashboard() {
 
       <AlertBanner highRiskCount={highRiskCount} />
 
-      {/* --- STATS GRID --- */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <RiskAnalysisChart data={asteroids} /> 
         <SectorMap data={filteredAsteroids} />
@@ -393,23 +355,21 @@ export default function Dashboard() {
             <span className="text-gray-500 text-[10px] uppercase font-mono tracking-widest mb-1">Total Detections</span>
             <span className="text-5xl font-black text-white">{asteroids.length}</span>
           </div>
-          <div className={`bg-[#0a0b14] border p-6 rounded-xl flex flex-col justify-center relative overflow-hidden transition-all duration-500 ${highRiskCount > 0 ? 'border-red-500 border-l-4 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-gray-800'}`}>
-            <Target className={`absolute right-[-10px] bottom-[-10px] ${highRiskCount > 0 ? 'text-red-500/10' : 'text-gray-800/10'}`} size={120} />
-            <span className={`${highRiskCount > 0 ? 'text-red-500' : 'text-gray-500'} text-[10px] uppercase font-mono tracking-widest mb-1`}>Critical Hazards</span>
+          <div className={`bg-[#0a0b14] border p-6 rounded-xl flex flex-col justify-center relative overflow-hidden transition-all duration-500 ${highRiskCount > 0 ? 'border-red-500 border-l-4' : 'border-gray-800'}`}>
+            <Target className="absolute right-[-10px] bottom-[-10px] text-gray-800/10" size={120} />
+            <span className="text-gray-500 text-[10px] uppercase font-mono tracking-widest mb-1">Critical Hazards</span>
             <span className="text-5xl font-black text-white">{highRiskCount}</span>
           </div>
         </div>
       </div>
 
-      {/* --- COMPARISON TOOL --- */}
       <div className="max-w-7xl mx-auto">
         <AsteroidComparison selected={compareList} />
       </div>
 
-      {/* --- SEARCH + FILTERS --- */}
       <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row gap-4">
         <div className="relative group flex-grow">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-blue-500" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
           <input 
             type="text" 
             placeholder="FILTER BY ASTEROID DESIGNATION..." 
@@ -418,59 +378,38 @@ export default function Dashboard() {
             onChange={(e) => setSearchTerm(e.target.value)} 
           />
         </div>
-        
         <div className="flex gap-2">
-            <button 
-                onClick={() => setShowOnlyThreats(!showOnlyThreats)}
-                className={`flex-1 md:flex-none px-4 py-4 rounded-xl border font-mono text-[9px] tracking-widest uppercase flex items-center justify-center gap-2 transition-all ${
-                    showOnlyThreats ? 'bg-red-600 border-red-500 text-white' : 'bg-[#0a0b14] border-gray-800 text-gray-500'
-                }`}
-            >
+            <button onClick={() => setShowOnlyThreats(!showOnlyThreats)} className={`px-4 py-4 rounded-xl border font-mono text-[9px] tracking-widest uppercase flex items-center gap-2 ${showOnlyThreats ? 'bg-red-600 border-red-500 text-white' : 'bg-[#0a0b14] border-gray-800 text-gray-500'}`}>
                 <Filter size={12} /> {showOnlyThreats ? "THREATS ON" : "ALL THREATS"}
             </button>
-
-            <button 
-                onClick={() => setShowOnlyWatchlist(!showOnlyWatchlist)}
-                className={`flex-1 md:flex-none px-4 py-4 rounded-xl border font-mono text-[9px] tracking-widest uppercase flex items-center justify-center gap-2 transition-all ${
-                    showOnlyWatchlist ? 'bg-yellow-600 border-yellow-500 text-white' : 'bg-[#0a0b14] border-gray-800 text-gray-500'
-                }`}
-            >
+            <button onClick={() => setShowOnlyWatchlist(!showOnlyWatchlist)} className={`px-4 py-4 rounded-xl border font-mono text-[9px] tracking-widest uppercase flex items-center gap-2 ${showOnlyWatchlist ? 'bg-yellow-600 border-yellow-500 text-white' : 'bg-[#0a0b14] border-gray-800 text-gray-500'}`}>
                 <Star size={12} className={showOnlyWatchlist ? "fill-white" : ""} /> {showOnlyWatchlist ? "WATCHLIST ONLY" : "VIEW WATCHLIST"}
             </button>
         </div>
       </div>
 
-      {/* --- ASTEROID LIST --- */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
         {filteredAsteroids.length > 0 ? (
           filteredAsteroids.map((neo) => {
             const isComparing = compareList.some(item => item.id === neo.id);
             return (
-              <div key={neo.id} className={`bg-[#0a0b14] border p-5 rounded-xl transition-all group relative overflow-hidden shadow-xl ${neo.riskScore >= 75 ? 'border-red-600 bg-red-950/5' : 'border-gray-800 hover:border-blue-500/50'} ${isComparing ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}>
+              <div key={neo.id} className={`bg-[#0a0b14] border p-5 rounded-xl transition-all group relative overflow-hidden ${neo.riskScore >= 75 ? 'border-red-600 bg-red-950/5' : 'border-gray-800 hover:border-blue-500/50'} ${isComparing ? 'ring-2 ring-blue-500' : ''}`}>
                 <div className="flex justify-between items-start mb-4 relative z-10">
                   <div className="flex flex-col">
-                      <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors tracking-tight">{neo.name}</h3>
+                      <h3 className="font-bold text-white tracking-tight">{neo.name}</h3>
                       <span className="text-[8px] text-gray-600 font-mono mt-1">ID: {neo.id}</span>
                   </div>
                   <div className="flex gap-2">
-                      <button 
-                          onClick={() => toggleCompare(neo)}
-                          className={`p-1 rounded transition-colors ${isComparing ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-800'}`}
-                          title="Add to Comparison"
-                      >
+                      <button onClick={() => toggleCompare(neo)} className={`p-1 rounded ${isComparing ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-800'}`}>
                           <ArrowLeftRight size={14} />
                       </button>
-                      <button 
-                          onClick={() => toggleFavorite(neo.id)}
-                          className={`transition-colors ${favorites.includes(neo.id) ? 'text-yellow-500' : 'text-gray-700 hover:text-yellow-500'}`}
-                      >
+                      <button onClick={() => toggleFavorite(neo.id)} className={`transition-colors ${favorites.includes(neo.id) ? 'text-yellow-500' : 'text-gray-700 hover:text-yellow-500'}`}>
                           <Star size={18} fill={favorites.includes(neo.id) ? "currentColor" : "none"} />
                       </button>
                       {neo.isHazardous ? <AlertCircle className="text-red-500 animate-pulse" size={18} /> : <Shield className="text-green-500" size={18} />}
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6 text-[11px] font-mono uppercase text-gray-500 relative z-10">
+                <div className="grid grid-cols-2 gap-4 mb-6 text-[11px] font-mono uppercase text-gray-500">
                   <div className="bg-black/20 p-2 rounded-lg">
                     <p>Velocity</p>
                     <p className="text-white text-xs mt-1 font-bold">{neo.velocity}</p>
@@ -480,22 +419,21 @@ export default function Dashboard() {
                     <p className="text-white text-xs mt-1 font-bold">{neo.size}</p>
                   </div>
                 </div>
-
                 <div className="pt-4 border-t border-gray-900 relative z-10">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-tighter">Impact Risk Index</span>
+                    <span className="text-[9px] font-bold text-gray-600 uppercase">Risk Index</span>
                     <span className={`text-[10px] font-bold ${neo.riskScore >= 75 ? 'text-red-500' : 'text-blue-500'}`}>{neo.riskScore}%</span>
                   </div>
-                  <div className="w-full bg-gray-950 h-1.5 rounded-full overflow-hidden shadow-inner">
-                    <div className={`h-full transition-all duration-1000 ease-out ${neo.riskScore >= 75 ? 'bg-gradient-to-r from-red-600 to-red-400' : 'bg-gradient-to-r from-blue-600 to-cyan-400'}`} style={{ width: `${neo.riskScore}%` }} />
+                  <div className="w-full bg-gray-950 h-1.5 rounded-full overflow-hidden">
+                    <div className={`h-full ${neo.riskScore >= 75 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${neo.riskScore}%` }} />
                   </div>
                 </div>
               </div>
             );
           })
         ) : (
-          <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-900 rounded-3xl bg-[#070810]">
-            <p className="text-gray-600 font-mono text-xs tracking-widest uppercase">No orbital bodies match your current watchlist filters.</p>
+          <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-900 rounded-3xl">
+            <p className="text-gray-600 font-mono text-xs tracking-widest uppercase">No orbital bodies match filters.</p>
           </div>
         )}
       </div>
