@@ -66,12 +66,17 @@ const LoginPage = () => {
 
           {error && <p className="text-red-500 text-[10px] text-center font-mono animate-pulse uppercase">{error}</p>}
           
-          <button 
-            type="submit"
-            className="w-full py-4 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-lg shadow-lg transition-all transform active:scale-95 uppercase tracking-widest text-xs"
-          >
-            Login
-          </button>
+         <button className="group relative w-full py-4 px-4 border border-purple-400 color-blue-700 rounded-lg font-bold overflow-hidden transition-all duration-300">
+       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 -translate-x-full group-hover:translate-x-0  transition-transform duration-300 ease-out"></div>
+
+  <p className="relative z-10 transition-colors uppercase text-purple-300 duration-300 group-hover:text-white">
+    Login
+  </p>
+</button>
+
+
+
+
         </form>
 
         {/* --- ADDED SECTION START --- */}

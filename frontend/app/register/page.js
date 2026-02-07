@@ -124,19 +124,20 @@ const RegisterPage = () => {
 
           {error && <p className="text-red-500 text-[9px] text-center font-mono animate-pulse uppercase">{error}</p>}
           {message && <p className="text-green-500 text-[9px] text-center font-mono uppercase">{message}</p>}
-          
-          <button 
-            type="submit"
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
-          >
-            Create Credentials
-          </button>
+           <button className="group relative w-full py-4 px-4 border border-blue-700 color-blue-700 rounded-lg font-bold overflow-hidden transition-all duration-300">
+       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600
+ -translate-x-full group-hover:translate-x-0 uppercase transition-transform duration-300 ease-out"></div>
+
+  <p className="relative z-10 transition-colors text-blue-700 duration-300 group-hover:text-white">
+    Create crendentials
+  </p>
+</button>
         </form>
 
         <div className="mt-6 pt-5 border-t border-gray-900 text-center space-y-2">
           <p className="text-[10px] text-gray-400">
             Already registered? 
-            <Link href="/login" className="text-purple-400 hover:text-blue-400 ml-1 font-bold transition-colors">
+            <Link href="/login" className="text-blue-400 hover:text-purple-400 ml-1 font-bold transition-colors">
                Login Here
             </Link>
           </p>
