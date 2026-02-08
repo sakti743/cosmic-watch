@@ -24,3 +24,70 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUpFade 1.67s ease-out forwards;
+}
+
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUpFade 0.8s ease-out forwards;
+}
+
+
+@keyframes scan {
+  0% { transform: translateY(-100%); opacity: 0 }
+  50% { opacity: 0.25 }
+  100% { transform: translateY(100%); opacity: 0 }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) }
+  50% { transform: translateY(-6px) }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px rgba(239,68,68,.4) }
+  50% { box-shadow: 0 0 25px rgba(239,68,68,.9) }
+  100% { box-shadow: 0 0 10px rgba(239,68,68,.4) }
+}
+
+.scan-line {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(99,102,241,0.25),
+    transparent
+  );
+  animation: scan 3s linear infinite;
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
