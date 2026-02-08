@@ -4,6 +4,7 @@ import { Telescope } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link'; // Standard Next.js navigation
 import axios from 'axios';
+import LoginVideo from '../Video/LoginVideo';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -27,8 +28,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#05060b] text-gray-300 font-sans px-4">
-      <div className="w-full max-w-md p-8 bg-[#0a0b14] rounded-2xl border border-gray-800 shadow-2xl relative overflow-hidden">
+    <>  <LoginVideo/>
+         <div className="min-h-screen flex items-center justify-center  text-gray-300 font-sans px-4">
+      <div className="w-full max-w-md p-8  rounded-2xl border border-white/15 bg-white/5  shadow-[0_0_80px_rgb(140,120,255,0.45)] relative overflow-hidden">
         
         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-3xl rounded-full -mr-16 -mt-16"></div>
 
@@ -44,7 +46,7 @@ const LoginPage = () => {
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 ml-1">Username</label>
+            <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 ml-1">Operator ID</label>
             <input 
               type="text" 
               required
@@ -94,6 +96,8 @@ const LoginPage = () => {
         {/* --- ADDED SECTION END --- */}
       </div>
     </div>
+    </>
+    
   );
 };
 

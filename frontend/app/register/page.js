@@ -4,6 +4,7 @@ import { UserPlus, Mail, User, ShieldCheck, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
+import LoginVideo from '../Video/LoginVideo';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -41,11 +42,13 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#05060b] text-gray-300 font-sans px-4 py-10">
-      <div className="w-full max-w-md p-8 bg-[#0a0b14] rounded-2xl border border-gray-800 shadow-2xl relative overflow-hidden">
+   <>
+   <LoginVideo />
+     <div className="min-h-screen flex items-center justify-center  text-gray-300 font-sans px-4">
+      <div className="w-full max-w-md p-8 h-[36rem] rounded-2xl border border-white/15 bg-white/5  shadow-[0_0_80px_rgb(140,120,255,0.45)] relative overflow-hidden">
         
         {/* Visual Flair: Purple Glow */}
-        <div className="absolute top-0 left-0 w-32 h-32 bg-purple-600/10 blur-3xl rounded-full -ml-16 -mt-16"></div>
+        <div className="absolute top-0 left-0 w-32 h-27 bg-purple-600/10 blur-3xl rounded-full -ml-16 -mt-16"></div>
 
         <div className="flex flex-col items-center mb-6 relative">
           <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(147,51,234,0.3)]">
@@ -124,11 +127,11 @@ const RegisterPage = () => {
 
           {error && <p className="text-red-500 text-[9px] text-center font-mono animate-pulse uppercase">{error}</p>}
           {message && <p className="text-green-500 text-[9px] text-center font-mono uppercase">{message}</p>}
-           <button className="group relative w-full py-4 px-4 border border-blue-700 color-blue-700 rounded-lg font-bold overflow-hidden transition-all duration-300">
+           <button className="group relative w-full py-4 px-4 border border-purple-300 color-blue-700 rounded-lg font-bold overflow-hidden transition-all duration-300">
        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600
  -translate-x-full group-hover:translate-x-0 uppercase transition-transform duration-300 ease-out"></div>
 
-  <p className="relative z-10 transition-colors text-blue-700 duration-300 group-hover:text-white">
+  <p className="relative z-10 transition-colors text-purple-300 duration-300 group-hover:text-white">
     Create crendentials
   </p>
 </button>
@@ -147,6 +150,7 @@ const RegisterPage = () => {
         </div>
       </div>
     </div>
+   </>
   );
 };
 

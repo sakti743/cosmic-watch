@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Activity, AlertTriangle, ShieldCheck } from 'lucide-react';
+import './globals.css'
+
 
 const Dashboard = () => {
   const [asteroids, setAsteroids] = useState([]);
@@ -18,67 +20,80 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0b14] p-8 text-gray-100">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-12">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tighter text-blue-400">NEO TELEMETRY FEED</h2>
-            <p className="text-gray-500 text-sm">Real-time tracking of Near-Earth Objects</p>
-          </div>
-          <div className="flex gap-4">
-            <div className="bg-[#11121d] px-4 py-2 rounded-lg border border-gray-800 flex items-center gap-2">
-              <Activity className="text-green-500" size={18} />
-              <span className="text-xs font-mono uppercase">System: Online</span>
-            </div>
-          </div>
-        </header>
+   <div
+  key={neo.id}
+  className="relative bg-[#0b0e1a] rounded-xl p-6 border border-blue-500/30 
+  shadow-[0_0_40px_rgba(99,102,241,0.25)]
+  hover:-translate-y-2 hover:rotate-[0.3deg]
+  transition-all duration-500 group overflow-hidden float"
+>
 
-        {/* Asteroid Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {asteroids.map((neo) => (
-            <div key={neo.id} className="bg-[#11121d] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 transition-all group">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-gray-200 group-hover:text-blue-400">{neo.name}</h3>
-                {neo.isHazardous ? (
-                  <AlertTriangle className="text-red-500" size={20} />
-                ) : (
-                  <ShieldCheck className="text-green-500" size={20} />
-                )}
-              </div>
-              
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Diameter:</span>
-                  <span className="font-mono">{neo.size}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Velocity:</span>
-                  <span className="font-mono">{neo.velocity}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Miss Distance:</span>
-                  <span className="font-mono text-xs text-blue-300">{neo.distance}</span>
-                </div>
-              </div>
+  {/* SCAN LINE */}
+  <div className="scan-line" />
 
-              {/* Risk Score Bar */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-xs uppercase tracking-widest text-gray-500">Risk Score</span>
-                  <span className="text-xs font-bold text-blue-400">{neo.riskScore}%</span>
-                </div>
-                <div className="w-full bg-gray-900 rounded-full h-1.5 overflow-hidden">
-                  <div 
-                    className={`h-full transition-all duration-1000 ${neo.riskScore > 50 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-blue-500'}`}
-                    style={{ width: `${neo.riskScore}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+  {/* CORNER HUD */}
+  <span className="absolute top-2 left-2 w-3 h-3 border-t border-l border-blue-400" />
+  <span className="absolute top-2 right-2 w-3 h-3 border-t border-r border-purple-400" />
+  <span className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-blue-400" />
+  <span className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-purple-400" />
+
+  {/* CONTENT */}
+  <div className="relative z-10">
+    <div className="flex justify-between items-start mb-4">
+      <h3 className="text-lg font-black tracking-widest text-blue-300">
+        {neo.name}
+      </h3>
+
+      {neo.isHazardous ? (
+        <AlertTriangle className="text-red-500 animate-pulse" size={20} />
+      ) : (
+        <ShieldCheck className="text-green-400" size={20} />
+      )}
+    </div>
+
+    <div className="space-y-3 mb-6 text-xs font-mono uppercase tracking-widest">
+      <div className="flex justify-between">
+        <span className="text-gray-500">ffff</span>
+        <span className="text-blue-300">{neo.size} m</span>
+      </div>
+
+      <div className="flex justify-between">
+        <span className="text-gray-500">Velocity</span>
+        <span className="text-blue-300">{neo.velocity}</span>
+      </div>
+
+      <div className="flex justify-between">
+        <span className="text-gray-500">Miss Dist</span>
+        <span className="text-blue-300">{neo.distance}</span>
       </div>
     </div>
+
+    {/* RISK BAR */}
+    <div>
+      <div className="flex justify-between mb-1">
+        <span className="text-[10px] text-gray-500 uppercase tracking-widest">
+          Threat Index
+        </span>
+        <span className="text-xs font-bold text-blue-400">
+          {neo.riskScore}%
+        </span>
+      </div>
+
+      <div className="w-full h-2 bg-[#020617] rounded-full overflow-hidden">
+        <div
+          className={`h-full ${
+            neo.riskScore > 50
+              ? 'bg-red-500 animate-[pulseGlow_2s_infinite]'
+              : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)]'
+          }`}
+          style={{ width: `${neo.riskScore}%` }}
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+
   );
 };
 
